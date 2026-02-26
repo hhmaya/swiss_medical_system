@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlpMed — SWISS Medical Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  :root {
+    --red: #C8102E;
+    --red-dark: #9E0C24;
+    --red-light: #f7e8eb;
+    --white: #FFFFFF;
+    --off-white: #F8F6F3;
+    --gray-100: #F2F0ED;
+    --gray-200: #E4E1DC;
+    --gray-400: #9B9590;
+    --gray-600: #5C5751;
+    --gray-900: #1A1816;
+    --green: #1A7A4A;
+    --green-light: #E8F5EE;
+    --amber: #B8860B;
+    --amber-light: #FFF8E1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--gray-900);
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  .nav-logo { display: flex; align-items: center; gap: 14px; }
+
+  .alp-med-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--gray-900); letter-spacing: -0.5px; }
+  .alp-med-title span { color: var(--red); }
+  .alp-med-sub { font-size: 10.5px; color: var(--gray-400); letter-spacing: 0.5px; font-weight: 500; margin-top: 1px; }
+
+  .swiss-logo {
+    height: 30px;
+    border-left: 1px solid var(--gray-200);
+    padding-left: 14px;
+    display: flex;
+    align-items: center;
+  }
+  .nav-right { display: flex; align-items: center; gap: 20px; }
+
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--green);
+    background: var(--green-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .nav-status-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .nav-user { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); }
+  .avatar {
+    width: 32px; height: 32px;
+    background: var(--red);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 11px; font-weight: 600;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── SIDEBAR ── */
+  aside {
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    padding: 24px 0;
+  }
+
+  .sidebar-section { padding: 0 16px; margin-bottom: 32px; }
+  .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gray-400); padding: 0 8px; margin-bottom: 8px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    font-size: 13.5px; color: var(--gray-600);
+    cursor: pointer; transition: all 0.15s; margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--gray-100); color: var(--gray-900); }
+  .sidebar-item.active { background: var(--red-light); color: var(--red); font-weight: 500; }
+  .sidebar-icon { width: 16px; text-align: center; font-size: 14px; }
+
+  .sidebar-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--red);
+    color: white;
+    border-radius: 10px;
+    padding: 1px 7px;
+  }
+
+  /* ── MAIN ── */
+  main { padding: 32px; overflow-y: auto; }
+
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--gray-900); letter-spacing: -0.5px; margin-bottom: 4px; }
+  .page-header p { font-size: 13.5px; color: var(--gray-400); }
+
+  /* ── STATS ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--gray-400); margin-bottom: 8px; }
+  .stat-value { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--gray-900); letter-spacing: -1px; }
+  .stat-sub { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+
+  .stat-card.highlight { background: var(--red); border-color: var(--red); }
+  .stat-card.highlight .stat-label { color: rgba(255,255,255,0.7); }
+  .stat-card.highlight .stat-value,
+  .stat-card.highlight .stat-sub { color: white; }
+
+  /* ── CONTENT GRID ── */
+  .content-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+
+  /* ── CARD ── */
+  .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 14px; overflow: hidden; }
+  .card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title { font-family: 'DM Serif Display', serif; font-size: 17px; letter-spacing: -0.3px; }
+  .card-body { padding: 24px; }
+
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-red { background: var(--red-light); color: var(--red); }
+
+  /* ── FORM ── */
+  .form-section { margin-bottom: 22px; }
+  .form-section-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--gray-400);
+    margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row.single { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; position: relative; }
+
+  label { font-size: 12px; font-weight: 500; color: var(--gray-600); }
+
+  input[type="text"], input[type="date"], input[type="number"], select, textarea {
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 0 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--gray-900);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    height: 38px;
+  }
+
+  textarea {
+    height: auto;
+    min-height: 70px;
+    padding: 10px 12px;
+    resize: none;
+    line-height: 1.5;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(200,16,46,0.08);
+  }
+
+  input[readonly] { background: var(--gray-100); color: var(--gray-600); cursor: default; }
+  input[readonly]:focus { border-color: var(--gray-200); box-shadow: none; }
+
+  /* AUTO-POPULATE */
+  .auto-field input[readonly] {
+    background: #F0FFF6;
+    border-color: #A8DFC0;
+    color: var(--green);
+    padding-right: 54px;
+  }
+
+  .auto-badge {
+    position: absolute; right: 10px; bottom: 10px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--green); background: var(--green-light);
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  /* VALUE STATUS INDICATOR */
+  .value-indicator {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    pointer-events: none;
+    transition: all 0.2s;
+  }
+
+  .vi-normal { background: var(--green-light); color: var(--green); }
+  .vi-border { background: var(--amber-light); color: var(--amber); }
+  .vi-alert  { background: var(--red-light); color: var(--red); }
+
+  input.vi-active { padding-right: 70px; }
+
+  /* ROUTING CARD */
+  .routing-card { background: var(--gray-100); border-radius: 10px; padding: 14px 16px; margin-top: 4px; }
+  .routing-title { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--gray-600); margin-bottom: 10px; }
+  .routing-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--gray-200); font-size: 13px; }
+  .routing-item:last-child { border-bottom: none; }
+  .routing-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); }
+  .dot-red   { background: var(--red); }
+  .routing-dest { color: var(--gray-900); font-weight: 500; flex: 1; }
+  .routing-status { font-size: 11px; color: var(--gray-400); }
+
+  /* SUBMIT BUTTON */
+  .btn-primary {
+    width: 100%; height: 46px;
+    background: var(--red); color: white;
+    border: none; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+    margin-top: 20px; letter-spacing: 0.2px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--red-dark); }
+  .btn-primary:active { transform: scale(0.99); }
+
+  .btn-secondary {
+    height: 40px; padding: 0 20px;
+    background: var(--white); color: var(--gray-900);
+    border: 1px solid var(--gray-200); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-secondary:hover { background: var(--gray-100); border-color: var(--gray-400); }
+
+  /* ── RIGHT COLUMN ── */
+  .right-col { display: flex; flex-direction: column; gap: 16px; }
+
+  .crew-profile { display: flex; align-items: center; gap: 14px; padding: 20px 24px; border-bottom: 1px solid var(--gray-200); }
+  .crew-avatar {
+    width: 46px; height: 46px;
+    background: var(--gray-900); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 14px; font-weight: 600; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .crew-name { font-weight: 600; font-size: 14px; color: var(--gray-900); }
+  .crew-role { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+  .crew-details { padding: 16px 24px; }
+  .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-key { color: var(--gray-400); }
+  .detail-val { font-weight: 500; color: var(--gray-900); }
+
+  /* TIMELINE */
+  .timeline { padding: 20px 24px; }
+  .timeline-item { display: flex; gap: 12px; padding-bottom: 18px; position: relative; }
+  .timeline-item:not(:last-child)::before {
+    content: ''; position: absolute; left: 7px; top: 18px; bottom: 0;
+    width: 1px; background: var(--gray-200);
+  }
+  .timeline-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--gray-200); background: var(--white); flex-shrink: 0; margin-top: 2px; }
+  .timeline-dot.done  { background: var(--green); border-color: var(--green); }
+  .timeline-dot.active { background: var(--red); border-color: var(--red); }
+  .timeline-text { font-size: 12.5px; color: var(--gray-600); line-height: 1.4; }
+  .timeline-time { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+  /* FOOTER NOTE */
+  .footer-note {
+    background: var(--red-light); border: 1px solid #f0c8d0;
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 12.5px; color: var(--red-dark); line-height: 1.5;
+  }
+  .footer-note strong { font-weight: 600; }
+
+  /* ── PROCESSING OVERLAY ── */
+  #processingOverlay {
+    position: fixed; inset: 0;
+    background: rgba(26, 24, 22, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+
+  #processingOverlay.visible { opacity: 1; pointer-events: all; }
+
+  .process-modal {
+    background: var(--white);
+    border-radius: 20px;
+    width: 440px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    transform: scale(0.95) translateY(16px);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  #processingOverlay.visible .process-modal { transform: scale(1) translateY(0); }
+
+  .process-header {
+    background: var(--red);
+    padding: 22px 28px;
+    color: white;
+  }
+
+  .process-header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    letter-spacing: -0.4px;
+    margin-bottom: 4px;
+  }
+
+  .process-header-sub { font-size: 12.5px; opacity: 0.8; }
+
+  .process-body { padding: 28px; }
+
+  .process-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+    opacity: 0.35;
+  }
+
+  .process-step.active { opacity: 1; background: var(--off-white); }
+  .process-step.done   { opacity: 1; }
+
+  .step-icon-wrap {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    background: var(--gray-100);
+    transition: all 0.3s;
+  }
+
+  .process-step.active .step-icon-wrap { background: var(--red-light); }
+  .process-step.done .step-icon-wrap   { background: var(--green-light); }
+
+  .step-label { font-size: 13.5px; font-weight: 500; color: var(--gray-600); flex: 1; }
+  .process-step.active .step-label { color: var(--gray-900); }
+  .process-step.done .step-label   { color: var(--gray-600); }
+
+  .step-status { font-size: 12px; font-weight: 600; }
+  .step-status.pending { color: var(--gray-400); }
+  .step-status.running { color: var(--red); }
+  .step-status.ok      { color: var(--green); }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--red-light);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .progress-bar-wrap {
+    height: 4px; background: var(--gray-100);
+    border-radius: 2px; overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .progress-bar {
+    height: 100%; background: var(--red);
+    border-radius: 2px;
+    width: 0%; transition: width 0.5s ease;
+  }
+
+  /* ── SUCCESS VIEW ── */
+  #successView { display: none; }
+
+  .success-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .success-icon {
+    width: 52px; height: 52px;
+    background: var(--green-light); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0); }
+    to   { transform: scale(1); }
+  }
+
+  .success-title { font-family: 'DM Serif Display', serif; font-size: 24px; letter-spacing: -0.5px; }
+  .success-sub { font-size: 13px; color: var(--gray-400); margin-top: 4px; }
+
+  .success-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+
+  /* CERTIFICATE PREVIEW */
+  .certificate {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 14px;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .cert-top {
+    background: var(--gray-900);
+    padding: 20px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .cert-brand { font-family: 'DM Serif Display', serif; color: white; font-size: 22px; }
+  .cert-brand span { color: #E8A0A0; }
+  .cert-swiss { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 2px; }
+
+  .cert-body { padding: 28px; }
+
+  .cert-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; color: var(--gray-900);
+    letter-spacing: -0.3px; margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .cert-subtitle {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--gray-400);
+    text-align: center; margin-bottom: 24px;
+  }
+
+  .cert-divider { height: 1px; background: var(--gray-200); margin: 16px 0; }
+
+  .cert-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin-bottom: 20px; }
+
+  .cert-field label { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--gray-400); display: block; margin-bottom: 3px; }
+  .cert-field .cert-val { font-size: 14px; font-weight: 500; color: var(--gray-900); }
+
+  .cert-outcome-banner {
+    background: var(--green-light);
+    border: 1px solid #A8DFC0;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    margin: 16px 0;
+  }
+
+  .cert-outcome-icon { font-size: 24px; }
+  .cert-outcome-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--green); margin-bottom: 2px; }
+  .cert-outcome-text { font-size: 15px; font-weight: 600; color: var(--gray-900); }
+
+  .cert-vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+  .cert-vital { text-align: center; background: var(--gray-100); border-radius: 8px; padding: 10px; }
+  .cert-vital-val { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--gray-900); }
+  .cert-vital-label { font-size: 10px; color: var(--gray-400); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px; }
+
+  .cert-footer {
+    background: var(--gray-100);
+    padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11.5px; color: var(--gray-400);
+  }
+
+  .cert-id { font-family: monospace; font-size: 11px; }
+
+  /* ROUTING CONFIRMATION */
+  .routing-confirm-card { display: flex; flex-direction: column; gap: 12px; }
+
+  .confirm-item {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    animation: slideIn 0.4s ease both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .confirm-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+
+  .confirm-label { font-weight: 500; font-size: 13px; color: var(--gray-900); }
+  .confirm-sub   { font-size: 11.5px; color: var(--gray-400); margin-top: 2px; }
+
+  .confirm-check {
+    margin-left: auto;
+    width: 24px; height: 24px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .success-actions {
+    display: flex; gap: 10px; margin-top: 22px;
+  }
+
+  .btn-print {
+    height: 44px; padding: 0 24px;
+    background: var(--red); color: white;
+    border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-print:hover { background: var(--red-dark); }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  /* VALIDATION ERROR */
+  .field-error { font-size: 11px; color: var(--red); margin-top: 3px; }
+  input.invalid, select.invalid { border-color: var(--red) !important; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--gray-900);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.toast-ok  { background: var(--green); }
+  #toast.toast-err { background: var(--red); }
+
+  .btn-send {
+    height: 44px; padding: 0 20px;
+    background: var(--gray-900); color: white;
+    border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, opacity 0.15s;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-send:hover { background: var(--gray-600); }
+  .btn-send:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  /* PRINT STYLES */
+  @media print {
+    nav, aside, .stats-row, .right-col, .success-actions, #formView, #processingOverlay { display: none !important; }
+    body { background: white; }
+    .layout { display: block; }
+    main { padding: 0; }
+    .success-grid { display: block; }
+    .certificate { border: none; box-shadow: none; }
+    .routing-confirm-card { display: none; }
+    .success-header { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">
+    <div>
+      <div class="alp-med-title">Alp<span>Med</span></div>
+      <div class="alp-med-sub">SWISS Medical Portal</div>
+    </div>
+    <div class="swiss-logo">
+      <div class="swiss-logo-text">SWISS</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-status">
+      <div class="nav-status-dot"></div>
+      All systems online
+    </div>
+    <div class="nav-user">
+      <div class="avatar">DR</div>
+      <span>Dr. Herren · SMS Kloten</span>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <div class="sidebar-item active">
+        <span class="sidebar-icon">📋</span> New Medical
+      </div>
+      <div class="sidebar-item">
+        <span class="sidebar-icon">📁</span> Records
+        <span class="sidebar-badge">143</span>
+      </div>
+      <div class="sidebar-item">
+        <span class="sidebar-icon">📅</span> Appointments
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Admin</div>
+      <div class="sidebar-item">
+        <span class="sidebar-icon">📊</span> Dashboard
+      </div>
+      <div class="sidebar-item">
+        <span class="sidebar-icon">🏛️</span> BAZL Reports
+      </div>
+      <div class="sidebar-item">
+        <span class="sidebar-icon">⚙️</span> Settings
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- FORM VIEW -->
+    <div id="formView">
+      <div class="page-header">
+        <h1>New Medical Entry</h1>
+        <p>AlpMed · Complete the examination below. All data routes automatically — no PDF attachment required.</p>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card highlight">
+          <div class="stat-label">Medicals Today</div>
+          <div class="stat-value">12</div>
+          <div class="stat-sub">8 completed · 4 remaining</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Entry Time</div>
+          <div class="stat-value">3.2<span style="font-size:16px;color:var(--gray-400)">min</span></div>
+          <div class="stat-sub">↓ 18 min saved vs. manual</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">BAZL Compliance</div>
+          <div class="stat-value">100<span style="font-size:16px;color:var(--gray-400)">%</span></div>
+          <div class="stat-sub">↑ Fully automated routing</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Manual Steps</div>
+          <div class="stat-value">0</div>
+          <div class="stat-sub">End-to-end automated</div>
+        </div>
+      </div>
+
+      <!-- FORM + SIDEBAR GRID -->
+      <div class="content-grid">
+
+        <!-- FORM CARD -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Medical Examination Form</span>
+            <span class="badge badge-amber">In Progress</span>
+          </div>
+          <div class="card-body">
+
+            <!-- SECTION 1: CREW MEMBER -->
+            <div class="form-section">
+              <div class="form-section-title">Crew Member</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Employee Email <span style="color:var(--red)">*</span></label>
+                  <input type="text" id="empEmail" placeholder="e.g. j.mueller@swiss.com" onblur="onEmailBlur()" autocomplete="off" />
+                </div>
+                <div class="form-group auto-field">
+                  <label>Employee ID</label>
+                  <input type="text" id="empId" value="" placeholder="auto-filled" readonly />
+                  <span class="auto-badge" id="empIdBadge" style="display:none">AUTO</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Full Name <span style="color:var(--red)">*</span></label>
+                  <input type="text" id="crewName" placeholder="Enter crew member name" oninput="onNameInput()" autocomplete="off" />
+                  <span class="field-error hidden" id="nameError">Name is required</span>
+                </div>
+                <div class="form-group">
+                  <label>Role</label>
+                  <select id="crewRole">
+                    <option>Flight Crew — Captain</option>
+                    <option>Flight Crew — First Officer</option>
+                    <option>Cabin Crew — Senior</option>
+                    <option>Cabin Crew</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Date of Birth</label>
+                  <input type="date" id="dob" value="1982-04-15" />
+                </div>
+                <div class="form-group auto-field">
+                  <label>License No.</label>
+                  <input type="text" id="licenseNo" value="" placeholder="auto-filled" readonly />
+                  <span class="auto-badge" id="licenseNoBadge" style="display:none">AUTO</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group auto-field">
+                  <label>Base</label>
+                  <input type="text" value="ZRH — Zürich" readonly />
+                  <span class="auto-badge">AUTO</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: VITAL SIGNS -->
+            <div class="form-section">
+              <div class="form-section-title">Vital Signs</div>
+              <div class="form-row triple">
+                <div class="form-group">
+                  <label>Systolic BP (mmHg)</label>
+                  <div style="position:relative">
+                    <input type="number" id="bpSys" value="118" min="60" max="200" class="vi-active" oninput="evalBP()" />
+                    <span class="value-indicator vi-normal" id="bpSysInd">Normal</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Diastolic BP (mmHg)</label>
+                  <div style="position:relative">
+                    <input type="number" id="bpDia" value="76" min="40" max="130" class="vi-active" oninput="evalBP()" />
+                    <span class="value-indicator vi-normal" id="bpDiaInd">Normal</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Heart Rate (bpm)</label>
+                  <div style="position:relative">
+                    <input type="number" id="hr" value="68" min="30" max="200" class="vi-active" oninput="evalHR()" />
+                    <span class="value-indicator vi-normal" id="hrInd">Normal</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row triple">
+                <div class="form-group">
+                  <label>O₂ Saturation (%)</label>
+                  <div style="position:relative">
+                    <input type="number" id="o2" value="99" min="80" max="100" class="vi-active" oninput="evalO2()" />
+                    <span class="value-indicator vi-normal" id="o2Ind">Normal</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>BMI</label>
+                  <div style="position:relative">
+                    <input type="number" id="bmi" value="23.4" min="10" max="50" step="0.1" class="vi-active" oninput="evalBMI()" />
+                    <span class="value-indicator vi-normal" id="bmiInd">Normal</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>ECG</label>
+                  <select id="ecg">
+                    <option value="Normal Sinus Rhythm">Normal Sinus Rhythm</option>
+                    <option value="Minor Irregularity">Minor Irregularity</option>
+                    <option value="Requires Specialist">Requires Specialist</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 3: VISION -->
+            <div class="form-section">
+              <div class="form-section-title">Visual Acuity</div>
+              <div class="form-row triple">
+                <div class="form-group">
+                  <label>Right Eye (decimal)</label>
+                  <div style="position:relative">
+                    <input type="number" id="visR" value="1.2" min="0" max="2.0" step="0.1" class="vi-active" oninput="evalVision('visR','visRInd')" />
+                    <span class="value-indicator vi-normal" id="visRInd">Normal</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Left Eye (decimal)</label>
+                  <div style="position:relative">
+                    <input type="number" id="visL" value="1.0" min="0" max="2.0" step="0.1" class="vi-active" oninput="evalVision('visL','visLInd')" />
+                    <span class="value-indicator vi-normal" id="visLInd">Normal</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Color Vision</label>
+                  <select id="colorVision">
+                    <option>Normal</option>
+                    <option>Mild deficiency</option>
+                    <option>Moderate deficiency</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Corrective Lenses</label>
+                  <select id="lenses">
+                    <option value="No">No — Uncorrected</option>
+                    <option value="Yes">Yes — Glasses or Contact Lenses</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Hearing Test</label>
+                  <select id="hearing">
+                    <option>Normal bilateral</option>
+                    <option>Mild loss — acceptable</option>
+                    <option>Requires audiologist</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 4: EXAMINATION RESULT -->
+            <div class="form-section">
+              <div class="form-section-title">Examination Result</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Medical Class</label>
+                  <select id="medClass" onchange="calcExpiry()">
+                    <option value="Class 1 — Flight Crew">Class 1 — Flight Crew</option>
+                    <option value="Class 2 — Cabin Crew">Class 2 — Cabin Crew</option>
+                    <option value="LAPL Medical">LAPL Medical</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Outcome</label>
+                  <select id="outcome">
+                    <option value="Fit — Unconditional">✓ Fit — Unconditional</option>
+                    <option value="Fit — With Limitations">Fit — With Limitations</option>
+                    <option value="Unfit">Unfit</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Examination Date</label>
+                  <input type="date" id="issueDate" value="2026-02-26" onchange="calcExpiry()" />
+                </div>
+                <div class="form-group auto-field">
+                  <label>Certificate Expiry</label>
+                  <input type="text" id="expiryDate" readonly />
+                  <span class="auto-badge">AUTO</span>
+                </div>
+              </div>
+              <div class="form-row single">
+                <div class="form-group">
+                  <label>Clinical Notes (optional)</label>
+                  <textarea id="notes" placeholder="Any observations, limitations, or remarks…"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 5: ROUTING PREVIEW -->
+            <div class="form-section">
+              <div class="form-section-title">Automatic Routing — On Submit</div>
+              <div class="routing-card">
+                <div class="routing-title">Data is automatically dispatched to:</div>
+                <div class="routing-item">
+                  <div class="routing-dot dot-green"></div>
+                  <span class="routing-dest">SWISS Crew Licensing System</span>
+                  <span class="routing-status">Instant · internal API</span>
+                </div>
+                <div class="routing-item">
+                  <div class="routing-dot dot-green"></div>
+                  <span class="routing-dest">PDF Certificate — auto-generated &amp; archived</span>
+                  <span class="routing-status">Instant</span>
+                </div>
+                <div class="routing-item">
+                  <div class="routing-dot dot-amber"></div>
+                  <span class="routing-dest">BAZL Federal Aviation Registry</span>
+                  <span class="routing-status">~2 min · external API</span>
+                </div>
+                <div class="routing-item">
+                  <div class="routing-dot dot-green"></div>
+                  <span class="routing-dest">Crew Member — Digital Certificate</span>
+                  <span class="routing-status">Instant · email + crew app</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="handleSubmit()">
+              <span>Submit &amp; Route Automatically</span>
+              <span>→</span>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-col">
+
+          <!-- CREW PROFILE CARD -->
+          <div class="card">
+            <div class="crew-profile">
+              <div class="crew-avatar" id="crewAvatarEl">–</div>
+              <div>
+                <div class="crew-name" id="crewNameEl">Enter name above</div>
+                <div class="crew-role" id="crewRoleEl">Crew Member</div>
+              </div>
+            </div>
+            <div class="crew-details">
+              <div class="detail-row">
+                <span class="detail-key">Last Medical</span>
+                <span class="detail-val">Feb 2025</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Status</span>
+                <span class="badge badge-amber">Renewal Due</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Medicals on file</span>
+                <span class="detail-val">11</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-key">Roster cleared</span>
+                <span class="detail-val" id="rosterStatus">Pending Medical</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TODAY'S ACTIVITY -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title" style="font-size:15px">Today's Activity</span>
+            </div>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot done"></div>
+                <div>
+                  <div class="timeline-text">Medical submitted — Anna Berger</div>
+                  <div class="timeline-time">09:14 · routed to 4 systems</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot done"></div>
+                <div>
+                  <div class="timeline-text">Medical submitted — Reto Zimmermann</div>
+                  <div class="timeline-time">10:02 · routed to 4 systems</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot active"></div>
+                <div>
+                  <div class="timeline-text"><strong id="timelineCurrentName">–</strong> · in progress</div>
+                  <div class="timeline-time">Now</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div>
+                  <div class="timeline-text">Sarah Keller — 14:30</div>
+                  <div class="timeline-time">Upcoming</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FOOTER NOTE -->
+          <div class="footer-note">
+            <strong>Zero manual steps.</strong> One form submission updates Crew Licensing, archives a PDF, notifies BAZL, and sends the crew member their digital certificate. No email. No attachment. No re-entry.
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- END FORM VIEW -->
+
+    <!-- SUCCESS VIEW -->
+    <div id="successView">
+      <div class="success-header">
+        <div class="success-icon">✓</div>
+        <div>
+          <div class="success-title">Medical Record Submitted</div>
+          <div class="success-sub" id="successSubtitle">Routed to 4 systems · <span id="successTime"></span></div>
+        </div>
+      </div>
+
+      <div class="success-grid">
+        <!-- CERTIFICATE PREVIEW -->
+        <div class="certificate" id="certificate">
+          <div class="cert-top">
+            <div>
+              <div class="cert-brand">Alp<span>Med</span></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Official Medical Certificate</div>
+            </div>
+            <div class="cert-swiss">SWISS AIRLINES</div>
+          </div>
+          <div class="cert-body">
+            <div class="cert-title">Aviation Medical Certificate</div>
+            <div class="cert-subtitle">Issued under EASA Part-MED Regulation</div>
+
+            <div class="cert-outcome-banner" id="certOutcomeBanner">
+              <div class="cert-outcome-icon">✅</div>
+              <div>
+                <div class="cert-outcome-label">Examination Outcome</div>
+                <div class="cert-outcome-text" id="certOutcomeText">Fit — Unconditional</div>
+              </div>
+            </div>
+
+            <div class="cert-field-grid">
+              <div class="cert-field">
+                <label>Full Name</label>
+                <div class="cert-val" id="certName">–</div>
+              </div>
+              <div class="cert-field">
+                <label>Employee ID</label>
+                <div class="cert-val" id="certEmpId">–</div>
+              </div>
+              <div class="cert-field">
+                <label>Role</label>
+                <div class="cert-val" id="certRole">–</div>
+              </div>
+              <div class="cert-field">
+                <label>License No.</label>
+                <div class="cert-val" id="certLicense">–</div>
+              </div>
+              <div class="cert-field">
+                <label>Medical Class</label>
+                <div class="cert-val" id="certClass">–</div>
+              </div>
+              <div class="cert-field">
+                <label>Base</label>
+                <div class="cert-val">ZRH — Zürich</div>
+              </div>
+              <div class="cert-field">
+                <label>Date of Issue</label>
+                <div class="cert-val" id="certIssue">–</div>
+              </div>
+              <div class="cert-field">
+                <label>Valid Until</label>
+                <div class="cert-val" id="certExpiry" style="color:var(--green);font-weight:600;">–</div>
+              </div>
+            </div>
+
+            <div class="cert-divider"></div>
+
+            <div class="cert-vitals">
+              <div class="cert-vital">
+                <div class="cert-vital-val" id="certBP">–</div>
+                <div class="cert-vital-label">Blood Pressure</div>
+              </div>
+              <div class="cert-vital">
+                <div class="cert-vital-val" id="certHR">–</div>
+                <div class="cert-vital-label">Heart Rate</div>
+              </div>
+              <div class="cert-vital">
+                <div class="cert-vital-val" id="certVis">–</div>
+                <div class="cert-vital-label">Visual Acuity</div>
+              </div>
+              <div class="cert-vital">
+                <div class="cert-vital-val" id="certO2">–</div>
+                <div class="cert-vital-label">O₂ Sat.</div>
+              </div>
+            </div>
+
+            <div class="cert-divider"></div>
+
+            <div style="font-size:12px;color:var(--gray-400);line-height:1.6;">
+              Examined by <strong>Dr. Herren</strong>, SMS Medical Centre Kloten.<br>
+              This certificate is valid for the medical class and duration stated above.<br>
+              <span id="certNoteText"></span>
+            </div>
+          </div>
+          <div class="cert-footer">
+            <div>AlpMed · SMS Kloten · SWISS Airlines</div>
+            <div class="cert-id" id="certId">REF: –</div>
+          </div>
+        </div>
+
+        <!-- ROUTING CONFIRMATION -->
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:14px;letter-spacing:-0.3px;">Routing Confirmation</div>
+          <div class="routing-confirm-card">
+            <div class="confirm-item" style="animation-delay:0.05s">
+              <div class="confirm-icon" style="background:var(--green-light)">📄</div>
+              <div>
+                <div class="confirm-label">PDF Certificate</div>
+                <div class="confirm-sub">Generated &amp; archived · ref <span id="pdfRef">–</span></div>
+              </div>
+              <div class="confirm-check">✓</div>
+            </div>
+            <div class="confirm-item" style="animation-delay:0.15s">
+              <div class="confirm-icon" style="background:#E8F0FF">🗄️</div>
+              <div>
+                <div class="confirm-label">Crew Licensing Database</div>
+                <div class="confirm-sub">Record updated · internal API</div>
+              </div>
+              <div class="confirm-check">✓</div>
+            </div>
+            <div class="confirm-item" style="animation-delay:0.25s">
+              <div class="confirm-icon" style="background:var(--amber-light)">🏛️</div>
+              <div>
+                <div class="confirm-label">BAZL Federal Registry</div>
+                <div class="confirm-sub">Transmitted · external API</div>
+              </div>
+              <div class="confirm-check">✓</div>
+            </div>
+            <div class="confirm-item" style="animation-delay:0.35s">
+              <div class="confirm-icon" style="background:var(--green-light)">✉️</div>
+              <div>
+                <div class="confirm-label">Digital Certificate Sent</div>
+                <div class="confirm-sub">Email + crew app notification</div>
+              </div>
+              <div class="confirm-check">✓</div>
+            </div>
+          </div>
+
+          <div class="success-actions">
+            <button class="btn-print" onclick="printCertificate()">⬇ Download PDF</button>
+            <!-- <button class="btn-send" id="btnSendEmail" onclick="sendEmailToPilot()">✉ Send to Pilot</button> -->
+            <button class="btn-secondary" onclick="resetForm()">+ New Entry</button>
+          </div>
+
+          <div style="margin-top:14px;background:var(--green-light);border-radius:10px;padding:14px 16px;font-size:12.5px;color:var(--green);line-height:1.5;">
+            <strong>Complete.</strong> All 4 systems updated in under 4 seconds. Crew member roster will be cleared automatically upon certificate activation.
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END SUCCESS VIEW -->
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── PROCESSING OVERLAY ── -->
+<div id="processingOverlay">
+  <div class="process-modal">
+    <div class="process-header">
+      <div class="process-header-title">Routing Medical Record…</div>
+      <div class="process-header-sub">Please wait while AlpMed dispatches to all connected systems</div>
+    </div>
+    <div class="process-body">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="process-step" id="step0">
+        <div class="step-icon-wrap">📄</div>
+        <div class="step-label">Generating PDF certificate</div>
+        <div class="step-status pending" id="stepStatus0">Pending</div>
+      </div>
+      <div class="process-step" id="step1">
+        <div class="step-icon-wrap">🗄️</div>
+        <div class="step-label">Uploading to Crew Licensing database</div>
+        <div class="step-status pending" id="stepStatus1">Pending</div>
+      </div>
+      <div class="process-step" id="step2">
+        <div class="step-icon-wrap">🏛️</div>
+        <div class="step-label">Transmitting to BAZL Federal Registry</div>
+        <div class="step-status pending" id="stepStatus2">Pending</div>
+      </div>
+      <div class="process-step" id="step3">
+        <div class="step-icon-wrap">✉️</div>
+        <div class="step-label">Sending digital certificate to crew member</div>
+        <div class="step-status pending" id="stepStatus3">Pending</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── EMAILJS CONFIG ──
+  // 1. Sign up at https://www.emailjs.com
+  // 2. Add Gmail as a service → copy the Service ID below
+  // 3. Create an email template → copy the Template ID below
+  // 4. Copy your Public Key from Account > API Keys
+  const EMAILJS_PUBLIC_KEY  = 'zAzO__Peyj77zSiY0';   // e.g. 'user_aBcDeFgH...'
+  const EMAILJS_SERVICE_ID  = 'service_lwa1e28';   // e.g. 'service_xxxxxx'
+  const EMAILJS_TEMPLATE_ID = 'template_lod4mjo';  // e.g. 'template_xxxxxx'
+
+  // ── INIT ──
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  calcExpiry();
+
+  // Shared cert data for email send
+  let _certData = {};
+
+  // ── LIVE NAME UPDATE ──
+  function onNameInput() {
+    const name = document.getElementById('crewName').value.trim();
+    const initials = name
+      ? name.split(' ').filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join('')
+      : '–';
+    document.getElementById('crewAvatarEl').textContent = initials;
+    document.getElementById('crewNameEl').textContent = name || 'Enter name above';
+    document.getElementById('timelineCurrentName').textContent = name || '–';
+    document.getElementById('nameError').classList.add('hidden');
+    document.getElementById('crewName').classList.remove('invalid');
+  }
+
+  function onEmailBlur() {
+    const email = document.getElementById('empEmail').value.trim();
+    if (!email) return;
+    const empId = '415679';
+    document.getElementById('empId').value = empId;
+    document.getElementById('empIdBadge').style.display = '';
+    document.getElementById('licenseNo').value = 'CH-FCL-' + empId;
+    document.getElementById('licenseNoBadge').style.display = '';
+  }
+
+  // ── EXPIRY CALCULATION ──
+  function calcExpiry() {
+    const issueVal = document.getElementById('issueDate').value;
+    const cls = document.getElementById('medClass').value;
+    if (!issueVal) return;
+
+    const d = new Date(issueVal);
+    if (cls.includes('Class 1')) d.setMonth(d.getMonth() + 12);
+    else if (cls.includes('Class 2')) d.setMonth(d.getMonth() + 24);
+    else d.setMonth(d.getMonth() + 48);
+
+    document.getElementById('expiryDate').value = d.toISOString().split('T')[0];
+  }
+
+  // ── VALUE INDICATORS ──
+  function setIndicator(elId, cls, text) {
+    const el = document.getElementById(elId);
+    el.className = 'value-indicator ' + cls;
+    el.textContent = text;
+  }
+
+  function evalBP() {
+    const sys = +document.getElementById('bpSys').value;
+    const dia = +document.getElementById('bpDia').value;
+
+    if (sys < 90 || sys > 140) setIndicator('bpSysInd','vi-alert','Alert');
+    else if (sys > 130) setIndicator('bpSysInd','vi-border','Border');
+    else setIndicator('bpSysInd','vi-normal','Normal');
+
+    if (dia < 60 || dia > 90) setIndicator('bpDiaInd','vi-alert','Alert');
+    else if (dia > 80) setIndicator('bpDiaInd','vi-border','Border');
+    else setIndicator('bpDiaInd','vi-normal','Normal');
+  }
+
+  function evalHR() {
+    const v = +document.getElementById('hr').value;
+    if (v < 50 || v > 100) setIndicator('hrInd','vi-alert','Alert');
+    else if (v > 90) setIndicator('hrInd','vi-border','Border');
+    else setIndicator('hrInd','vi-normal','Normal');
+  }
+
+  function evalO2() {
+    const v = +document.getElementById('o2').value;
+    if (v < 95) setIndicator('o2Ind','vi-alert','Alert');
+    else if (v < 97) setIndicator('o2Ind','vi-border','Border');
+    else setIndicator('o2Ind','vi-normal','Normal');
+  }
+
+  function evalBMI() {
+    const v = +document.getElementById('bmi').value;
+    if (v < 18.5 || v >= 30) setIndicator('bmiInd','vi-alert','Alert');
+    else if (v >= 25) setIndicator('bmiInd','vi-border','Border');
+    else setIndicator('bmiInd','vi-normal','Normal');
+  }
+
+  function evalVision(inputId, indId) {
+    const v = +document.getElementById(inputId).value;
+    if (v < 0.5) setIndicator(indId,'vi-alert','Alert');
+    else if (v < 0.7) setIndicator(indId,'vi-border','Border');
+    else setIndicator(indId,'vi-normal','Normal');
+  }
+
+  // ── SUBMIT HANDLER ──
+  function handleSubmit() {
+    const name = document.getElementById('crewName').value.trim();
+    if (!name) {
+      document.getElementById('nameError').classList.remove('hidden');
+      document.getElementById('crewName').classList.add('invalid');
+      document.getElementById('crewName').focus();
+      return;
+    }
+    runProcessingAnimation();
+  }
+
+  // ── PROCESSING ANIMATION ──
+  const stepDurations = [900, 1100, 1400, 800];
+
+  function runProcessingAnimation() {
+    const overlay = document.getElementById('processingOverlay');
+    overlay.classList.add('visible');
+    // reset steps
+    for (let i = 0; i < 4; i++) {
+      document.getElementById('step'+i).className = 'process-step';
+      const s = document.getElementById('stepStatus'+i);
+      s.className = 'step-status pending';
+      s.textContent = 'Pending';
+    }
+    document.getElementById('progressBar').style.width = '0%';
+    animateStep(0);
+  }
+
+  function animateStep(i) {
+    if (i >= 4) {
+      document.getElementById('progressBar').style.width = '100%';
+      setTimeout(() => finishProcessing(), 400);
+      return;
+    }
+
+    const stepEl = document.getElementById('step'+i);
+    const statusEl = document.getElementById('stepStatus'+i);
+    stepEl.className = 'process-step active';
+    statusEl.className = 'step-status running';
+    statusEl.innerHTML = '<span class="spinner"></span>';
+
+    const pct = Math.round(((i) / 4) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+
+    setTimeout(() => {
+      stepEl.className = 'process-step done';
+      statusEl.className = 'step-status ok';
+      statusEl.textContent = '✓ Done';
+      animateStep(i + 1);
+    }, stepDurations[i]);
+  }
+
+  function finishProcessing() {
+    setTimeout(() => {
+      document.getElementById('processingOverlay').classList.remove('visible');
+      populateCertificate();
+      document.getElementById('formView').style.display = 'none';
+      document.getElementById('successView').style.display = 'block';
+      document.getElementById('successView').scrollIntoView({behavior:'smooth'});
+    }, 350);
+  }
+
+  // ── POPULATE CERTIFICATE ──
+  function populateCertificate() {
+    const name     = document.getElementById('crewName').value.trim();
+    const empId    = document.getElementById('empId').value.trim() || 'SW-DEMO';
+    const role     = document.getElementById('crewRole').value;
+    const license  = document.getElementById('licenseNo').value;
+    const medClass = document.getElementById('medClass').value;
+    const outcome  = document.getElementById('outcome').value;
+    const issue    = document.getElementById('issueDate').value;
+    const expiry   = document.getElementById('expiryDate').value;
+    const bpSys    = document.getElementById('bpSys').value;
+    const bpDia    = document.getElementById('bpDia').value;
+    const hr       = document.getElementById('hr').value;
+    const visR     = document.getElementById('visR').value;
+    const visL     = document.getElementById('visL').value;
+    const o2       = document.getElementById('o2').value;
+    const notes    = document.getElementById('notes').value.trim();
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('de-CH', {hour:'2-digit',minute:'2-digit'});
+    const refNo = 'MED-' + now.getFullYear() + '-' + String(Math.floor(Math.random()*90000)+10000);
+
+    // Store for email sending
+    _certData = {
+      to_email:    document.getElementById('empEmail').value.trim(),
+      to_name:     name,
+      ref_no:      refNo,
+      employee_id: empId,
+      license_no:  license,
+      role,
+      medical_class: medClass,
+      outcome,
+      issue_date:  formatDate(issue),
+      expiry_date: formatDate(expiry),
+      bp:          bpSys + '/' + bpDia + ' mmHg',
+      heart_rate:  hr + ' bpm',
+      vision:      visR + ' / ' + visL,
+      o2_sat:      o2 + '%',
+      notes:       notes || '—',
+      doctor:      'Dr. Herren, SMS Medical Centre Kloten',
+    };
+
+    // Reset send button state (if visible)
+    const btn = document.getElementById('btnSendEmail');
+    if (btn) { btn.disabled = false; btn.textContent = '✉ Send to Pilot'; }
+
+    document.getElementById('certName').textContent    = name;
+    document.getElementById('certEmpId').textContent   = empId;
+    document.getElementById('certRole').textContent    = role;
+    document.getElementById('certLicense').textContent = license;
+    document.getElementById('certClass').textContent   = medClass;
+    document.getElementById('certIssue').textContent   = formatDate(issue);
+    document.getElementById('certExpiry').textContent  = formatDate(expiry);
+    document.getElementById('certBP').textContent      = bpSys + '/' + bpDia;
+    document.getElementById('certHR').textContent      = hr + ' bpm';
+    document.getElementById('certVis').textContent     = visR + '/' + visL;
+    document.getElementById('certO2').textContent      = o2 + '%';
+    document.getElementById('certOutcomeText').textContent = outcome;
+    document.getElementById('certId').textContent      = 'REF: ' + refNo;
+    document.getElementById('pdfRef').textContent      = refNo;
+    document.getElementById('certNoteText').textContent = notes ? 'Note: ' + notes : '';
+    document.getElementById('successTime').textContent = timeStr;
+    document.getElementById('successSubtitle').innerHTML =
+      'Routed to 4 systems · ' + timeStr + ' · <strong>' + refNo + '</strong>';
+
+    if (outcome.includes('Unfit')) {
+      document.getElementById('certOutcomeBanner').style.background = 'var(--red-light)';
+      document.getElementById('certOutcomeBanner').style.borderColor = '#f0c8d0';
+      document.getElementById('certOutcomeText').style.color = 'var(--red)';
+    }
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '–';
+    const [y,m,d] = iso.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return d + ' ' + months[+m-1] + ' ' + y;
+  }
+
+  // ── SEND EMAIL ──
+  function sendEmailToPilot() {
+    if (!_certData.to_email) {
+      showToast('No pilot email address on record.', 'err');
+      return;
+    }
+
+    const btn = document.getElementById('btnSendEmail');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:white"></span> Sending…';
+
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, _certData)
+      .then(() => {
+        btn.textContent = '✓ Sent';
+        showToast('Certificate emailed to ' + _certData.to_email, 'ok');
+      })
+      .catch((err) => {
+        btn.disabled = false;
+        btn.textContent = '✉ Send to Pilot';
+        console.error('EmailJS error:', err);
+        showToast('Email failed — check EmailJS config.', 'err');
+      });
+  }
+
+  // ── TOAST ──
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + (type === 'ok' ? 'toast-ok' : type === 'err' ? 'toast-err' : '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = ''; }, 3500);
+  }
+
+  // ── PRINT / PDF ──
+  function printCertificate() {
+    window.print();
+  }
+
+  // ── RESET ──
+  function resetForm() {
+    document.getElementById('successView').style.display = 'none';
+    document.getElementById('formView').style.display = 'block';
+    document.getElementById('empEmail').value = '';
+    document.getElementById('empId').value = '';
+    document.getElementById('empIdBadge').style.display = 'none';
+    document.getElementById('licenseNo').value = '';
+    document.getElementById('licenseNoBadge').style.display = 'none';
+    document.getElementById('crewName').value = '';
+    document.getElementById('crewAvatarEl').textContent = '–';
+    document.getElementById('crewNameEl').textContent = 'Enter name above';
+    document.getElementById('timelineCurrentName').textContent = '–';
+    document.getElementById('notes').value = '';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+</script>
+</body>
+</html>
